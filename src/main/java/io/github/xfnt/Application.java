@@ -28,7 +28,7 @@ public class Application {
         if (lines != 0) {
             // Читаем первую строку, проверяем формат и возвращаем имя таблицы
             String tableName = fileParser.readLine(1)
-                    .filter(t -> t.contains("Table:"))
+                    .filter(t -> t.startsWith("\"Table:\""))
                     .map(t -> t.split(","))
                     .filter(arr -> arr.length == 2)
                     .map(arr -> arr[arr.length - 1])
@@ -37,7 +37,7 @@ public class Application {
 
             // Читаем вторую строку, проверяем формат и возвращаем массив столбцов
             String[] columns = fileParser.readLine(2)
-                    .filter(t -> t.contains("Columns:"))
+                    .filter(t -> t.startsWith("\"Columns:\""))
                     .map(t -> t.split(","))
                     .filter(arr -> arr.length > 1)
                     .map(arr -> Arrays.copyOfRange(arr, 1, arr.length))
