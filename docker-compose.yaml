@@ -1,0 +1,21 @@
+version: '3.9'
+
+services:
+  pg-db:
+    image: postgres:latest
+    container_name: pg-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+volumes:
+  pg-db-data:
+    driver: local
+networks:
+  default:
+    name: custom_network
