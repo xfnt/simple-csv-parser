@@ -3,8 +3,11 @@ package io.github.xfnt.database;
 import io.github.xfnt.database.connection.ConnectionFactory;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Map;
+import java.util.StringJoiner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,27 +21,50 @@ public class RepositoryImpl implements Repository {
     }
 
     @Override
-    public int createTable(String tableName, String... fields) {
-        StringBuilder sqlBuilder = new StringBuilder();
+    public int createTable(String table, String... fields) {
+        String sql = "CREATE TABLE IF NOT EXISTS %s (%s".formatted(table, String.join(" TEXT, ", fields) + " TEXT);");
 
-        sqlBuilder.append("CREATE TABLE IF NOT EXISTS ").append(tableName).append(" (");
-        for(int i = 0; i < fields.length; i++) {
-            if(i == fields.length - 1) {
-                sqlBuilder.append(fields[i]).append(" ").append("TEXT");
-            }else {
-                sqlBuilder.append(fields[i]).append(" ").append("TEXT").append(", ");
-            }
-        }
-        sqlBuilder.append(");");
-        logger.log(Level.INFO, "Execute: {0}", sqlBuilder.toString());
+        logger.log(Level.INFO, "Execute: {0}", sql);
 
-        try(Connection connection = connectionFactory.getConnection();
-            Statement statement = connection.createStatement()) {
-            int code = statement.executeUpdate(sqlBuilder.toString());
-            logger.log(Level.INFO, "Table {0} created!", tableName);
+        try (Connection connection = connectionFactory.getConnection();
+             Statement statement = connection.createStatement()) {
+            int code = statement.executeUpdate(sql);
+            logger.log(Level.INFO, "Table {0} created!", table);
             return code;
-        }catch (SQLException e) {
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error creating table " + table, e);
             return -1;
+        }
+    }
+
+    @Override
+    public void insert(String table, Map<String, String> data) {
+        if (data.isEmpty()) {
+            throw new IllegalArgumentException("Нет данных для вставки");
+        }
+
+        StringJoiner columns = new StringJoiner(", ");
+        StringJoiner values = new StringJoiner(", ");
+        data.forEach((column, value) -> {
+            columns.add(column);
+            values.add("?");
+        });
+
+        String sql = "INSERT INTO " + table + " (" + columns + ") VALUES (" + values + ")";
+        logger.log(Level.INFO, "Executing SQL: {0}", sql);
+
+        try (Connection connection = connectionFactory.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            int index = 1;
+            for (String value : data.values()) {
+                statement.setString(index++, value);
+            }
+
+            int rowsInserted = statement.executeUpdate();
+            logger.log(Level.INFO, "Inserted {0} row(s) into {1}", new Object[]{rowsInserted, table});
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error inserting values", e);
         }
     }
 }
