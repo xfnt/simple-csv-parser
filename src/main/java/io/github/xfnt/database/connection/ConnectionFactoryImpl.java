@@ -1,16 +1,24 @@
 package io.github.xfnt.database.connection;
 
+import io.github.xfnt.Configuration;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class ConnectionFactoryImpl implements ConnectionFactory {
-    private final String URL = "jdbc:postgresql://localhost:5432/postgres";
-    private final String USER = "postgres";
-    private final String PASSWORD = "postgres";
+    private final String url;
+    private final String user;
+    private final String password;
+
+    public ConnectionFactoryImpl(Configuration configuration) {
+        this.url = configuration.getDatabaseUrl();
+        this.user = configuration.getDatabaseUser();
+        this.password = configuration.getDatabasePassword();
+    }
 
     @Override
     public Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+        return DriverManager.getConnection(url, user, password);
     }
 }

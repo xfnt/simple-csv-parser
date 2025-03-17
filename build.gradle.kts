@@ -1,9 +1,14 @@
 plugins {
+    application
     java
 }
 
 group = "io.github.sunset-of-dev"
 version = "0.0.1-SNAPSHOT"
+
+application {
+    mainClass.set("io.github.xfnt.Application")
+}
 
 java {
     toolchain {
@@ -31,4 +36,13 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.jar {
+    manifest {
+        attributes["Main-Class"] = application.mainClass.get()
+    }
+    from({
+        configurations.runtimeClasspath.get().filter { it.exists() }.map { zipTree(it) }
+    })
 }

@@ -5,6 +5,8 @@ public final class Constants {
     public static final String INSERT_VALUES_EXCEPTION_MESSAGE = "Error inserting values";
     public static final String NO_DATA_EXCEPTION_MESSAGE = "No Data";
 
+    public static final String[] ALLOWED_DELIMITER = new String[] {",", ";"};
+
     private Constants() {
         throw new RuntimeException("Utils class");
     }

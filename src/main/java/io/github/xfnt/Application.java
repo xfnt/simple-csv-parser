@@ -19,8 +19,9 @@ public class Application {
     private final FileParser fileParser;
 
     public Application() {
-        repository = new RepositoryImpl(new ConnectionFactoryImpl());
-        fileParser = new FileParser("/home/xfnt/Downloads/PREFERENCE_DEFINITION.csv");
+        Configuration configuration = new Configuration();
+        repository = new RepositoryImpl(new ConnectionFactoryImpl(configuration));
+        fileParser = new FileParser(configuration.getFilePath());
     }
 
     public void run() {
